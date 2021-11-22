@@ -186,8 +186,10 @@ public class KafkaRecordSet
 
             Map<ColumnHandle, FieldValueProvider> currentRowValuesMap = new HashMap<>();
 
-            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedKey = keyDecoder.decodeRow(keyData);
-            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedValue = messageDecoder.decodeRow(messageData);
+            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedKey =
+                    (message.key() != null) ? keyDecoder.decodeRow(keyData) : Optional.empty();
+            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedValue
+                    = (message.value() != null) ? messageDecoder.decodeRow(messageData) : Optional.empty();
 
             for (DecoderColumnHandle columnHandle : columnHandles) {
                 if (columnHandle.isInternal()) {
