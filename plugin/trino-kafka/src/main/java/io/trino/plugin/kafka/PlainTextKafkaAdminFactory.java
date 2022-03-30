@@ -27,12 +27,17 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_MECHANISM;
 
 public class PlainTextKafkaAdminFactory
         implements KafkaAdminFactory
 {
     private final Set<HostAddress> nodes;
     private final SecurityProtocol securityProtocol;
+    private String ncpSecurityProtocol;
+    private String ncpSaslMechanism;
+    private String ncpSaslJaasConfig;
 
     @Inject
     public PlainTextKafkaAdminFactory(
@@ -44,6 +49,9 @@ public class PlainTextKafkaAdminFactory
 
         nodes = kafkaConfig.getNodes();
         securityProtocol = securityConfig.getSecurityProtocol();
+        ncpSecurityProtocol = kafkaConfig.getNcpSecurityProtocol();
+        ncpSaslMechanism = kafkaConfig.getNcpSaslMechanism();
+        ncpSaslJaasConfig = kafkaConfig.getNcpSaslJaasConfig();
     }
 
     @Override
@@ -54,6 +62,16 @@ public class PlainTextKafkaAdminFactory
                 .map(HostAddress::toString)
                 .collect(joining(",")));
         properties.setProperty(SECURITY_PROTOCOL_CONFIG, securityProtocol.name());
+        if (ncpSecurityProtocol != null) {
+            properties.setProperty(SECURITY_PROTOCOL_CONFIG, ncpSecurityProtocol);
+        }
+        if (ncpSaslMechanism != null) {
+            properties.setProperty(SASL_MECHANISM, ncpSaslMechanism);
+        }
+        if (ncpSaslJaasConfig != null) {
+            properties.setProperty(SASL_JAAS_CONFIG, ncpSaslJaasConfig);
+        }
+
         return properties;
     }
 }

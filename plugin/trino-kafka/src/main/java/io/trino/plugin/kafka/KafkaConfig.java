@@ -38,6 +38,9 @@ public class KafkaConfig
     private static final int KAFKA_DEFAULT_PORT = 9092;
 
     private Set<HostAddress> nodes = ImmutableSet.of();
+    private String ncpSecurityProtocol;
+    private String ncpSaslMechanism;
+    private String ncpSaslJaasConfig;
     private DataSize kafkaBufferSize = DataSize.of(64, Unit.KILOBYTE);
     private String defaultSchema = "default";
     private boolean hideInternalColumns = true;
@@ -56,6 +59,45 @@ public class KafkaConfig
     public KafkaConfig setNodes(String nodes)
     {
         this.nodes = (nodes == null) ? null : parseNodes(nodes);
+        return this;
+    }
+
+    public String getNcpSecurityProtocol()
+    {
+        return ncpSecurityProtocol;
+    }
+
+    @Config("kafka.ncp-security-protocol")
+    @ConfigDescription("security.protocol")
+    public KafkaConfig setNcpSecurityProtocol(String ncpSecurityProtocol)
+    {
+        this.ncpSecurityProtocol = ncpSecurityProtocol;
+        return this;
+    }
+
+    public String getNcpSaslMechanism()
+    {
+        return ncpSaslMechanism;
+    }
+
+    @Config("kafka.ncp-sasl-mechanism")
+    @ConfigDescription("sasl.mechanism")
+    public KafkaConfig setNcpSaslMechanism(String ncpSaslMechanism)
+    {
+        this.ncpSaslMechanism = ncpSaslMechanism;
+        return this;
+    }
+
+    public String getNcpSaslJaasConfig()
+    {
+        return ncpSaslJaasConfig;
+    }
+
+    @Config("kafka.ncp-sasl-jaas-config")
+    @ConfigDescription("sasl.jaas.config")
+    public KafkaConfig setNcpSaslJaasConfig(String ncpSaslJaasConfig)
+    {
+        this.ncpSaslJaasConfig = ncpSaslJaasConfig;
         return this;
     }
 

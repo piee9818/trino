@@ -31,12 +31,17 @@ import static org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.LINGER_MS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_MECHANISM;
 
 public class PlainTextKafkaProducerFactory
         implements KafkaProducerFactory
 {
     private final Set<HostAddress> nodes;
     private final SecurityProtocol securityProtocol;
+    private String ncpSecurityProtocol;
+    private String ncpSaslMechanism;
+    private String ncpSaslJaasConfig;
 
     @Inject
     public PlainTextKafkaProducerFactory(KafkaConfig kafkaConfig, KafkaSecurityConfig securityConfig)
@@ -46,6 +51,9 @@ public class PlainTextKafkaProducerFactory
 
         nodes = kafkaConfig.getNodes();
         securityProtocol = securityConfig.getSecurityProtocol();
+        ncpSecurityProtocol = kafkaConfig.getNcpSecurityProtocol();
+        ncpSaslMechanism = kafkaConfig.getNcpSaslMechanism();
+        ncpSaslJaasConfig = kafkaConfig.getNcpSaslJaasConfig();
     }
 
     @Override
@@ -60,6 +68,16 @@ public class PlainTextKafkaProducerFactory
         properties.setProperty(ACKS_CONFIG, "all");
         properties.setProperty(LINGER_MS_CONFIG, Long.toString(5));
         properties.setProperty(SECURITY_PROTOCOL_CONFIG, securityProtocol.name());
+        if (ncpSecurityProtocol != null) {
+            properties.setProperty(SECURITY_PROTOCOL_CONFIG, ncpSecurityProtocol);
+        }
+        if (ncpSaslMechanism != null) {
+            properties.setProperty(SASL_MECHANISM, ncpSaslMechanism);
+        }
+        if (ncpSaslJaasConfig != null) {
+            properties.setProperty(SASL_JAAS_CONFIG, ncpSaslJaasConfig);
+        }
+
         return properties;
     }
 }

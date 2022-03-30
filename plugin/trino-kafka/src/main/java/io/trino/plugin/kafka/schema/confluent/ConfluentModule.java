@@ -24,6 +24,7 @@ import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig;
 import io.trino.decoder.DispatchingRowDecoderFactory;
 import io.trino.decoder.RowDecoderFactory;
 import io.trino.decoder.avro.AvroBytesDeserializer;
@@ -46,9 +47,9 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.inject.Scopes.SINGLETON;
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
@@ -90,10 +91,15 @@ public class ConfluentModule
                 .map(HostAddress::getHostText)
                 .collect(toImmutableList());
 
-        Map<String, ?> schemaRegistryClientProperties = propertiesProviders.stream()
+        Map<String, Object> schemaRegistryClientProperties = propertiesProviders.stream()
                 .map(SchemaRegistryClientPropertiesProvider::getSchemaRegistryClientProperties)
                 .flatMap(properties -> properties.entrySet().stream())
-                .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (confluentConfig.getNcpConfluentSchemaRegistryAuth() != null) {
+            schemaRegistryClientProperties.put(SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
+            schemaRegistryClientProperties.put(SchemaRegistryClientConfig.USER_INFO_CONFIG, confluentConfig.getNcpConfluentSchemaRegistryAuth());
+        }
 
         return new ClassLoaderSafeSchemaRegistryClient(
                 new CachedSchemaRegistryClient(

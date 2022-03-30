@@ -32,6 +32,8 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.ENABLE_AUTO_COMMI
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.RECEIVE_BUFFER_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_JAAS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.SASL_MECHANISM;
 
 public class PlainTextKafkaConsumerFactory
         implements KafkaConsumerFactory
@@ -39,6 +41,9 @@ public class PlainTextKafkaConsumerFactory
     private final Set<HostAddress> nodes;
     private final DataSize kafkaBufferSize;
     private final SecurityProtocol securityProtocol;
+    private String ncpSecurityProtocol;
+    private String ncpSaslMechanism;
+    private String ncpSaslJaasConfig;
 
     @Inject
     public PlainTextKafkaConsumerFactory(
@@ -51,6 +56,9 @@ public class PlainTextKafkaConsumerFactory
         nodes = kafkaConfig.getNodes();
         kafkaBufferSize = kafkaConfig.getKafkaBufferSize();
         securityProtocol = securityConfig.getSecurityProtocol();
+        ncpSecurityProtocol = kafkaConfig.getNcpSecurityProtocol();
+        ncpSaslMechanism = kafkaConfig.getNcpSaslMechanism();
+        ncpSaslJaasConfig = kafkaConfig.getNcpSaslJaasConfig();
     }
 
     @Override
@@ -65,6 +73,16 @@ public class PlainTextKafkaConsumerFactory
         properties.setProperty(RECEIVE_BUFFER_CONFIG, Long.toString(kafkaBufferSize.toBytes()));
         properties.setProperty(ENABLE_AUTO_COMMIT_CONFIG, Boolean.toString(false));
         properties.setProperty(SECURITY_PROTOCOL_CONFIG, securityProtocol.name());
+        if (ncpSecurityProtocol != null) {
+            properties.setProperty(SECURITY_PROTOCOL_CONFIG, ncpSecurityProtocol);
+        }
+        if (ncpSaslMechanism != null) {
+            properties.setProperty(SASL_MECHANISM, ncpSaslMechanism);
+        }
+        if (ncpSaslJaasConfig != null) {
+            properties.setProperty(SASL_JAAS_CONFIG, ncpSaslJaasConfig);
+        }
+
         return properties;
     }
 }
