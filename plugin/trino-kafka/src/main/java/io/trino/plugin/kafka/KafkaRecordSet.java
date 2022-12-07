@@ -170,8 +170,10 @@ public class KafkaRecordSet
             byte[] messageData = message.value() == null ? EMPTY_BYTE_ARRAY : message.value();
             long timeStamp = message.timestamp() * MICROSECONDS_PER_MILLISECOND;
 
-            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedKey = keyDecoder.decodeRow(keyData);
-            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedValue = messageDecoder.decodeRow(messageData);
+            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedKey =
+                    (message.key() != null) ? keyDecoder.decodeRow(keyData) : Optional.empty();
+            Optional<Map<DecoderColumnHandle, FieldValueProvider>> decodedValue =
+                    (message.value() != null) ? messageDecoder.decodeRow(messageData) : Optional.empty();
 
             Map<ColumnHandle, FieldValueProvider> currentRowValuesMap = columnHandles.stream()
                     .filter(KafkaColumnHandle::isInternal)
