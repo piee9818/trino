@@ -869,11 +869,11 @@ public class TrinoUri
     private static void validateConnectionProperties(Properties connectionProperties)
             throws SQLException
     {
-        for (String propertyName : connectionProperties.stringPropertyNames()) {
-            if (ConnectionProperties.forKey(propertyName) == null) {
-                throw new SQLException(format("Unrecognized connection property '%s'", propertyName));
-            }
-        }
+//        for (String propertyName : connectionProperties.stringPropertyNames()) {
+//            if (ConnectionProperties.forKey(propertyName) == null) {
+//                throw new SQLException(format("Unrecognized connection property '%s'", propertyName));
+//            }
+//        }
 
         for (ConnectionProperty<?, ?> property : ConnectionProperties.allProperties()) {
             property.validate(connectionProperties);
