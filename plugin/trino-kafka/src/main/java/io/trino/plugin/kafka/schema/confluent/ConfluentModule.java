@@ -29,6 +29,7 @@ import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
@@ -66,6 +67,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -124,10 +126,15 @@ public class ConfluentModule
                 .map(HostAddress::getHostText)
                 .collect(toImmutableList());
 
-        Map<String, ?> schemaRegistryClientProperties = propertiesProviders.stream()
+        Map<String, Object> schemaRegistryClientProperties = propertiesProviders.stream()
                 .map(SchemaRegistryClientPropertiesProvider::getSchemaRegistryClientProperties)
                 .flatMap(properties -> properties.entrySet().stream())
-                .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (confluentConfig.getNcpConfluentSchemaRegistryAuth() != null) {
+            schemaRegistryClientProperties.put(SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
+            schemaRegistryClientProperties.put(SchemaRegistryClientConfig.USER_INFO_CONFIG, confluentConfig.getNcpConfluentSchemaRegistryAuth());
+        }
 
         return new ClassLoaderSafeSchemaRegistryClient(
                 new CachedSchemaRegistryClient(

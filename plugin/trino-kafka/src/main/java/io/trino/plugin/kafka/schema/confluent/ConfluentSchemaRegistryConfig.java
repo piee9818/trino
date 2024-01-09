@@ -36,6 +36,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ConfluentSchemaRegistryConfig
 {
     private Set<HostAddress> confluentSchemaRegistryUrls;
+    private String ncpConfluentSchemaRegistryAuth;
     private int confluentSchemaRegistryClientCacheSize = 1000;
     private EmptyFieldStrategy emptyFieldStrategy = IGNORE;
     private Duration confluentSubjectsCacheRefreshInterval = new Duration(1, SECONDS);
@@ -51,6 +52,19 @@ public class ConfluentSchemaRegistryConfig
     public ConfluentSchemaRegistryConfig setConfluentSchemaRegistryUrls(String confluentSchemaRegistryUrls)
     {
         this.confluentSchemaRegistryUrls = (confluentSchemaRegistryUrls == null) ? null : parseNodes(confluentSchemaRegistryUrls);
+        return this;
+    }
+
+    public String getNcpConfluentSchemaRegistryAuth()
+    {
+        return ncpConfluentSchemaRegistryAuth;
+    }
+
+    @Config("kafka.ncp-confluent-schema-registry-auth")
+    @ConfigDescription("The id:pw of the Confluent Schema Registry")
+    public ConfluentSchemaRegistryConfig setNcpConfluentSchemaRegistryAuth(String ncpConfluentSchemaRegistryAuth)
+    {
+        this.ncpConfluentSchemaRegistryAuth = ncpConfluentSchemaRegistryAuth;
         return this;
     }
 
