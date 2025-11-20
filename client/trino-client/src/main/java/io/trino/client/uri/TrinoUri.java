@@ -674,11 +674,11 @@ public class TrinoUri
     {
         ImmutableList.Builder<RuntimeException> violations = ImmutableList.builder();
 
-        for (String propertyName : connectionProperties.stringPropertyNames()) {
-            if (ConnectionProperties.forKey(propertyName) == null) {
-                violations.add(new IllegalArgumentException(format("Unrecognized connection property '%s'", propertyName)));
-            }
-        }
+//        for (String propertyName : connectionProperties.stringPropertyNames()) {
+//            if (ConnectionProperties.forKey(propertyName) == null) {
+//                violations.add(new IllegalArgumentException(format("Unrecognized connection property '%s'", propertyName)));
+//            }
+//        }
 
         for (ConnectionProperty<?, ?> property : allProperties()) {
             Optional<RuntimeException> validationError = property.validate(connectionProperties);
